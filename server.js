@@ -15,13 +15,11 @@ function generateRoomId(length = 8) {
   return "ROOM" + randomId;
 }
 
-// Create an HTTP server
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('WebSocket server is running');
 });
 
-// Create a WebSocket server by passing the HTTP server
 const wss = new WebSocket.Server({ server });
 
 const sendToTheOther = (ws, msg) => {
@@ -33,17 +31,13 @@ const sendToTheOther = (ws, msg) => {
   }
 }
 
-// Set up a connection event listener
 wss.on('connection', (ws) => {
   console.log('Client connected');
   clients.push(ws)
 
-  // Handle messages from clients
   ws.on('message', (message) => {
     console.log(`Received: ${message}`);
-    
-    // Send a response back to the client
-    // ws.send(`You sent: ${message}`);
+  
     message = JSON.parse(message)
 
     switch(message.request) {
@@ -86,14 +80,13 @@ wss.on('connection', (ws) => {
               "value": color === "white" ? "black" : "white"
             })) 
           } else {
-            // Handle the case when the room doesn't exist or is already full
             ws.send(JSON.stringify({
               "response": "roomError",
               "error": "Room does not exist or is full"
             }));
           }
         }
-        break;
+        break
       case "newChessboard":
         ROOMS[ws.roomID].forEach(user => {
           if(user !== ws) {
@@ -113,20 +106,18 @@ wss.on('connection', (ws) => {
       }
   });
 
-  // Handle disconnection
   ws.on('close', () => {
     const indexToRemove = clients.indexOf(ws);
     clients.splice(indexToRemove, 1);    
-    const roomID = ws.roomID; // Get the room ID associated with this connection
+    const roomID = ws.roomID
     console.log(ws.roomID)
     if (roomID && ROOMS[roomID]) {
-      delete ROOMS[roomID]; // Delete the room from the ROOMS object
+      delete ROOMS[roomID]
     }
   });
 });
 
 setInterval(() => {
-  // Get a list of all rooms with active clients
   const roomsWithActiveClients = [];
   for (const roomID in ROOMS) {
     if (ROOMS.hasOwnProperty(roomID) && ROOMS[roomID].length > 0) {
@@ -134,13 +125,10 @@ setInterval(() => {
     }
   }
 
-  // Get a list of all existing rooms
   const allExistingRooms = Object.keys(ROOMS);
 
-  // Find and delete rooms that are not in both lists
   for (const roomID of allExistingRooms) {
     if (!roomsWithActiveClients.includes(roomID)) {
-      // Room is not in the list of rooms with active clients, so delete it
       delete ROOMS[roomID];
       console.log(`Room ${roomID} deleted because it's empty.`);
     }
@@ -148,7 +136,6 @@ setInterval(() => {
 }, 1000);
 
 
-// Start the HTTP server on port 8080
 server.listen(8080, () => {
   console.log('WebSocket server is running on http://localhost:8080');
 });
