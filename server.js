@@ -103,6 +103,16 @@ wss.on('connection', (ws) => {
           value: message.value
         })
         break
+      case "checkmate":
+        ws.send(JSON.stringify({
+          "response": "GAMEOVER",
+          "winner":  message.winner
+        }))
+        sendToTheOther(ws, {
+          "response": "GAMEOVER",
+          "winner":  message.winner
+        })
+        break
       }
   });
 
