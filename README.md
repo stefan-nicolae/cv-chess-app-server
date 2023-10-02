@@ -1,4 +1,4 @@
 # cv-chess-app-server
-https://cv-chess-app.netlify.app/
+Site: https://cv-chess-app.netlify.app/
 
-https://github.com/stefan-nicolae/cv-chess-app
+Client Repo: https://github.com/stefan-nicolae/cv-chess-app
