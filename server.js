@@ -92,7 +92,7 @@ wss.on('connection', (ws) => {
         break
       case "URLroomID":
         var roomID = message.value
-        if(ws.roomID===roomID || rooms[roomID].length === 2) {
+        if(ws.roomID===roomID || (rooms[roomID] && rooms[roomID].length === 2)) {
           sendRoomError(ws, "Room is either yours, occupied or inexistent.")
           break
         }
