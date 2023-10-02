@@ -50,6 +50,12 @@ function sendToPartner(ws, message) {
   })
 }
 
+function sendRoomError(ws, message) {
+  ws.send(JSON.stringify({
+    response: "roomError",
+    error: message}))
+}
+
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('WebSocket server is running');
@@ -76,14 +82,20 @@ wss.on('connection', (ws) => {
         break
       case "joinRoom":
         var roomID = message.value
-        if(rooms[roomID]) {
-          rooms[roomID].push(ws)
-          ws.roomID = roomID
-          okToJoin(roomID)
-        } 
+        if(ws.roomID===roomID || !rooms[roomID] || rooms[roomID].length === 2) {
+          sendRoomError(ws, "Room is either yours, occupied or inexistent.")
+          break
+        }
+        rooms[roomID].push(ws)
+        ws.roomID = roomID
+        okToJoin(roomID)
         break
       case "URLroomID":
         var roomID = message.value
+        if(ws.roomID===roomID || rooms[roomID].length === 2) {
+          sendRoomError(ws, "Room is either yours, occupied or inexistent.")
+          break
+        }
         if(!rooms[roomID]) {
           rooms[roomID] = [ws]
           ws.roomID = roomID
@@ -99,7 +111,6 @@ wss.on('connection', (ws) => {
           value: message.value
         }))
         break
-      
     }
   });
 
@@ -112,3 +123,4 @@ wss.on('connection', (ws) => {
 server.listen(8080, () => {
   console.log('WebSocket server is running on http://localhost:8080');
 });
+
